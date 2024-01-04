@@ -1,6 +1,14 @@
 package main
 
-import "github.com/kataras/iris/v12"
+import (
+	"context"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
+	"seckill-mall-go/backend/web/controllers"
+	"seckill-mall-go/common"
+	"seckill-mall-go/repositories"
+	"seckill-mall-go/services"
+)
 
 func main() {
 	app := iris.New()
@@ -20,9 +28,21 @@ func main() {
 			return
 		}
 	})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	// 1. 连接MySQL
+	db, err := common.NewMysqlConn()
+	if err != nil {
+		panic("数据库连接失败")
+	}
 
 	// 注册控制器
-
+	prodRepo := repositories.NewProductManager("product", db)
+	prodService := services.NewProdServiceManager(prodRepo)
+	prodParty := app.Party("/product")
+	prod := mvc.New(prodParty)
+	prod.Register(ctx, prodService)
+	prod.Handle(new(controllers.ProdController))
 	// 启动服务
 	app.Run(
 		iris.Addr("localhost:8080"),
