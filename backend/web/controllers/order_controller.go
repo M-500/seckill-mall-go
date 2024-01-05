@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"seckill-mall-go/common"
@@ -19,9 +18,6 @@ func (o *OrderController) Get() mvc.View {
 	order, err := o.OrderService.GetAllOrderWithInfo()
 	if err != nil {
 		o.Ctx.Application().Logger().Debug(err)
-	}
-	for _, i2 := range order {
-		fmt.Println(i2)
 	}
 	return mvc.View{
 		Name: "order/view.html",
