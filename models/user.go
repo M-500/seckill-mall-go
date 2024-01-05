@@ -1,8 +1,8 @@
 package models
 
 type User struct {
-	ID       int64  `sql:"id" json:"id" form:"id"`
-	NickName string `sql:"nick_name" json:"nickName" form:"nickName"`
-	Username string `sql:"username" json:"username" form:"username"`
-	Password string `sql:"password" json:"password" form:"password"`
+	BaseModel
+	NickName string `gorm:"type:string;size:;column:nick_name" seckill:"nickName" sql:"nick_name" json:"nickName" form:"nickName"`
+	Username string `gorm:"type:string;size:;column:username" seckill:"username" sql:"username" json:"username" form:"username"`
+	Password string `gorm:"type:string;size:;column:password" seckill:"password" sql:"password" json:"password" form:"password"`
 }

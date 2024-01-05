@@ -1,101 +1,58 @@
 package repositories
 
 import (
-	"database/sql"
-	"fmt"
+	"errors"
+	"gorm.io/gorm"
 	"seckill-mall-go/common"
 	"seckill-mall-go/models"
-	"strconv"
 )
 
 type IUserRepository interface {
-	Conn() error
 	SelectByUsername(username string) (user *models.User, err error)
 	SelectByID(uid int64) (user *models.User, err error)
 	Insert(user *models.User) (uid int64, err error)
 }
 
 type UserManager struct {
-	table     string
-	mysqlConn *sql.DB
+	DB *gorm.DB
 }
 
-func NewUserRepository(table string, db *sql.DB) IUserRepository {
+func NewUserRepository() IUserRepository {
 	return &UserManager{
-		table:     table,
-		mysqlConn: db,
+		DB: common.DB(),
 	}
-}
-
-func (u *UserManager) Conn() error {
-	if u.mysqlConn == nil {
-		mysql, err := common.NewMysqlConn()
-		if err != nil {
-			return err
-		}
-		u.mysqlConn = mysql
-	}
-	if u.table == "" {
-		u.table = "user"
-	}
-	return nil
 }
 
 func (u *UserManager) SelectByUsername(username string) (user *models.User, err error) {
-	if err = u.Conn(); err != nil {
-		return
+	queryData := models.User{}
+	exist := u.DB.Where(&models.User{Username: username}).First(&queryData)
+	if exist.RowsAffected <= 0 {
+		return nil, errors.New("用户不存在")
 	}
-	sqlStr := "SELECT * from " + u.table + " WHERE username = ? "
-	row, err := u.mysqlConn.Query(sqlStr, username)
-	defer row.Close()
-	if err != nil {
-		return nil, err
-	}
-	// 转换结构体
-	result := common.GetResultRow(row)
-	if len(result) <= 0 {
-		return nil, nil
-	}
-	user = &models.User{}
-	common.DataToStructByTagSql(result, user)
-	return user, err
+	return &queryData, err
 }
 
 func (u *UserManager) SelectByID(uid int64) (user *models.User, err error) {
-	if err = u.Conn(); err != nil {
-		return
+	queryData := &models.User{}
+	result := u.DB.First(queryData, uid)
+	if result.Error != nil {
+		return nil, result.Error
 	}
-	sqlStr := "SELECT * from " + u.table + " WHERE id = " + strconv.FormatInt(uid, 10)
-	row, err := u.mysqlConn.Query(sqlStr)
-	defer row.Close()
-	if err != nil {
-		return nil, err
-	}
-	// 转换结构体
-	result := common.GetResultRow(row)
-	if len(result) <= 0 {
-		return nil, nil
-	}
-	user = &models.User{}
-	common.DataToStructByTagSql(result, user)
-	return user, err
+	return queryData, nil
 }
 
 func (u *UserManager) Insert(user *models.User) (uid int64, err error) {
-	if err = u.Conn(); err != nil {
-		return
+	queryData := &models.User{}
+	exist := u.DB.Where(&models.User{Username: user.Username}).First(&queryData)
+	if exist.RowsAffected == 1 {
+		return 0, errors.New("用户名已存在")
 	}
-	sqlStr := fmt.Sprintf("INSERT %s SET nick_name=?,username=?,password=?", u.table)
-	stmt, err := u.mysqlConn.Prepare(sqlStr)
-	if err != nil {
-		return
+	createUser := models.User{
+		NickName: user.NickName,
+		Username: user.Username,
+		Password: user.Password,
 	}
-	// 插入数据
-	result, err := stmt.Exec(user.NickName,
-		user.Username, user.Password,
-	)
-	if err != nil {
-		return
-	}
-	return result.LastInsertId()
+	u.DB.Create(&createUser)
+
+	return createUser.ID, nil
 }

@@ -38,11 +38,8 @@ func (u *UserService) IsPwdSuccess(userName string, pwd string) (user *models.Us
 func (u *UserService) AddUser(user *models.User) (uid int64, err error) {
 	// 判断用户是否存在
 	res, err := u.userRepo.SelectByUsername(user.Username)
-	if err != nil {
-		return 0, err
-	}
 	if res != nil {
-		return 0, errors.New("用户名以存在")
+		return 0, errors.New("用户名已存在")
 	}
 
 	// 密码加密
@@ -50,14 +47,18 @@ func (u *UserService) AddUser(user *models.User) (uid int64, err error) {
 	if err != nil {
 		return 0, err
 	}
-	user.Password = string(hashPwd)
-	return u.userRepo.Insert(user)
+	data := &models.User{
+		Username: user.Username,
+		Password: string(hashPwd),
+		NickName: user.NickName,
+	}
+	return u.userRepo.Insert(data)
 
 }
 
 // 这里密码直接选择哈希
 func ValidatePwd(oldPwd string, hasPwd string) (bool, error) {
-	if err := bcrypt.CompareHashAndPassword([]byte(hasPwd), []byte(oldPwd)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(oldPwd), []byte(hasPwd)); err != nil {
 		return false, errors.New("密码校验不通过！")
 	}
 	return true, nil
