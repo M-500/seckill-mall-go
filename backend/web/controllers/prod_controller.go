@@ -6,6 +6,7 @@ import (
 	"seckill-mall-go/common"
 	"seckill-mall-go/models"
 	"seckill-mall-go/services"
+	"strconv"
 )
 
 type ProdController struct {
@@ -59,4 +60,23 @@ func (p *ProdController) PostAdd() {
 		p.Ctx.Application().Logger().Debug(err)
 	}
 	p.Ctx.Redirect("/prod/all")
+}
+
+// 修改商品页面
+func (p *ProdController) GetManager() mvc.View {
+	idStr := p.Ctx.URLParam("id")              // 去 URL 中获取商品的Id
+	id, err := strconv.ParseInt(idStr, 10, 64) // 转换为int64类型
+	if err != nil {
+		p.Ctx.Application().Logger().Debug(err)
+	}
+	product, err := p.ProdService.GetProdByID(id)
+	if err != nil {
+		p.Ctx.Application().Logger().Debug(err)
+	}
+	return mvc.View{
+		Name: "prod/manager.html",
+		Data: iris.Map{
+			"product": product,
+		},
+	}
 }

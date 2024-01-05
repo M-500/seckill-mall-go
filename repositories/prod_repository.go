@@ -106,7 +106,7 @@ func (p *ProductManager) SelectByKey(pid int64) (product *models.Product, err er
 	if err = p.Conn(); err != nil {
 		return
 	}
-	sqlStr := "SELECT * from " + p.table + "WHERE id = " + strconv.FormatInt(pid, 10)
+	sqlStr := "SELECT * from " + p.table + " WHERE id = " + strconv.FormatInt(pid, 10)
 	row, err := p.mysqlConn.Query(sqlStr)
 	defer row.Close()
 	if err != nil {
@@ -117,6 +117,7 @@ func (p *ProductManager) SelectByKey(pid int64) (product *models.Product, err er
 	if len(result) <= 0 {
 		return nil, nil
 	}
+	product = &models.Product{}
 	common.DataToStructByTagSql(result, product)
 	return product, err
 }
