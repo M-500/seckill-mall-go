@@ -37,7 +37,7 @@ func (p *ProdController) PostUpdate() {
 	if err != nil {
 		p.Ctx.Application().Logger().Debug(err)
 	}
-	p.Ctx.Redirect("/prod/all")
+	p.Ctx.Redirect("/product/all")
 }
 
 // 添加商品
@@ -59,7 +59,7 @@ func (p *ProdController) PostAdd() {
 	if err != nil {
 		p.Ctx.Application().Logger().Debug(err)
 	}
-	p.Ctx.Redirect("/prod/all")
+	p.Ctx.Redirect("/product/all")
 }
 
 // 修改商品页面
@@ -79,4 +79,18 @@ func (p *ProdController) GetManager() mvc.View {
 			"product": product,
 		},
 	}
+}
+
+// 删除功能
+func (p *ProdController) GetDelete() {
+	idStr := p.Ctx.URLParam("id")              // 去 URL 中获取商品的Id
+	id, err := strconv.ParseInt(idStr, 10, 64) // 转换为int64类型
+	if err != nil {
+		p.Ctx.Application().Logger().Debug(err)
+	}
+	_, err = p.ProdService.DeleteByID(id)
+	if err != nil {
+		p.Ctx.Application().Logger().Debug(err)
+	}
+	p.Ctx.Redirect("/product/all")
 }
