@@ -14,7 +14,7 @@ type ProdController struct {
 }
 
 // 获取所有商品
-func (p ProdController) GetAll() mvc.View {
+func (p *ProdController) GetAll() mvc.View {
 	prods, _ := p.ProdService.GetAllProd()
 	return mvc.View{
 		Name: "prod/view.html",
@@ -25,7 +25,7 @@ func (p ProdController) GetAll() mvc.View {
 }
 
 // 修改商品
-func (p ProdController) PostUpdate() {
+func (p *ProdController) PostUpdate() {
 	product := &models.Product{}
 	p.Ctx.Request().ParseForm()
 	dec := common.NewDecoder(&common.DecoderOptions{TagName: "seckill"})
@@ -33,6 +33,28 @@ func (p ProdController) PostUpdate() {
 		p.Ctx.Application().Logger().Debug(err)
 	}
 	err := p.ProdService.UpdateProd(product)
+	if err != nil {
+		p.Ctx.Application().Logger().Debug(err)
+	}
+	p.Ctx.Redirect("/prod/all")
+}
+
+// 添加商品
+func (p *ProdController) GetAdd() mvc.View {
+	return mvc.View{
+		Name: "prod/add.html",
+	}
+}
+
+// 商品添加表单
+func (p *ProdController) PostAdd() {
+	prod := &models.Product{}
+	p.Ctx.Request().ParseForm()
+	dec := common.NewDecoder(&common.DecoderOptions{TagName: "seckill"})
+	if err := dec.Decode(p.Ctx.Request().Form, prod); err != nil {
+		p.Ctx.Application().Logger().Debug(err)
+	}
+	_, err := p.ProdService.InsertProd(prod)
 	if err != nil {
 		p.Ctx.Application().Logger().Debug(err)
 	}

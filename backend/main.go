@@ -14,7 +14,7 @@ func main() {
 	app := iris.New()
 	app.Logger().SetLevel("debug") // 设置日志错误等级
 	// 注册模板
-	template := iris.HTML("./backend/web/views", ".html").Layout("shared/layout.html").Reload(true)
+	template := iris.HTML("backend/web/views", ".html").Layout("shared/layout.html").Reload(true)
 	app.RegisterView(template)
 	// 设置静态文件目录
 	//app.StaticContent("/assets", "./backend/web/assets")
