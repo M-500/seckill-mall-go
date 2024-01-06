@@ -5,6 +5,8 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
+	template2 "html/template"
+	"os"
 	"seckill-mall-go/models"
 	"seckill-mall-go/services"
 	"strconv"
@@ -87,4 +89,36 @@ func (p *ProductController) GetOrder() mvc.View {
 			"showMessage": showMessage,
 		},
 	}
+}
+
+var (
+	htmlOutPath = "./front/web/htmlProductShou" // 生成HTML静态页面的目录
+	template    = "./front/web/views/template"  // 静态文件模版目录
+)
+
+func generateStaticHtml(ctx iris.Context, template *template2.Template, filename string, prod models.Product) {
+	// 判断静态文件是否存在，如果存在就删除对应文件
+	if fileExist(filename) {
+		err := os.Remove(filename)
+		if err != nil {
+			ctx.Application().Logger().Error(err)
+		}
+	}
+	// 生成静态文件
+	file, err := os.OpenFile(filename, os.O_CREATE, os.ModePerm)
+	if err != nil {
+		ctx.Application().Logger().Error(err)
+	}
+	defer file.Close()
+
+	err = template.Execute(file, &prod)
+	if err != nil {
+		return
+	}
+}
+
+// 判断文件是否存在
+func fileExist(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return err == nil || os.IsExist(err)
 }
