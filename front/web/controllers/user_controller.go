@@ -7,6 +7,7 @@ import (
 	"github.com/kataras/iris/v12/sessions"
 	"seckill-mall-go/models"
 	"seckill-mall-go/services"
+	"seckill-mall-go/tool"
 	"strconv"
 )
 
@@ -59,6 +60,7 @@ func (u *UserController) PostRegister() {
 	return
 }
 
+// 处理Login表单
 func (c *UserController) PostLogin() mvc.Response {
 	//1.获取用户提交的表单信息
 	var (
@@ -72,9 +74,8 @@ func (c *UserController) PostLogin() mvc.Response {
 			Path: "/user/login",
 		}
 	}
-	fmt.Println("狗日的", user)
 	//3、写入用户ID到cookie中
-	//tool.GlobalCookie(c.Ctx, "uid", strconv.FormatInt(user.ID, 10))
+	tool.GlobalCookie(c.Ctx, "uid", strconv.FormatInt(user.ID, 10))
 	c.Session.Set("userID", strconv.FormatInt(user.ID, 10))
 
 	return mvc.Response{

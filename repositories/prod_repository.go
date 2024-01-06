@@ -31,7 +31,7 @@ type ProductManager struct {
 	mysqlConn *sql.DB
 }
 
-func NewProductManager(tb string, db *sql.DB) IProduct {
+func NewProductRepository(tb string, db *sql.DB) IProduct {
 	return &ProductManager{
 		table:     tb,
 		mysqlConn: db,

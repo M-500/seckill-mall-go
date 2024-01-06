@@ -69,6 +69,18 @@ func main() {
 	user.Register(ctx, userService, sess.Start)
 	user.Handle(new(controllers.UserController))
 
+	// 注册Product控制器
+	// 1. 连接MySQL  因为ProdRepository没有使用Gorm,这里我们还是要用以前的方法来创建DB
+	db, err := common.NewMysqlConn()
+	if err != nil {
+		panic("数据库连接失败")
+	}
+	prodRepo := repositories.NewProductRepository("product", db)
+	prodService := services.NewProdServiceManager(prodRepo)
+	prodParty := app.Party("/product")
+	prod := mvc.New(prodParty)
+	prod.Register(ctx, prodService)
+	prod.Handle(new(controllers.ProductController))
 	app.Run(
 		iris.Addr("127.0.0.1:8085"),
 		//iris.WithoutServerError(iris.ErrServerClosed),

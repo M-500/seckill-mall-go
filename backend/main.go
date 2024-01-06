@@ -37,7 +37,7 @@ func main() {
 	}
 
 	// 注册控制器
-	prodRepo := repositories.NewProductManager("product", db)
+	prodRepo := repositories.NewProductRepository("product", db)
 	prodService := services.NewProdServiceManager(prodRepo)
 	prodParty := app.Party("/product")
 	prod := mvc.New(prodParty)
