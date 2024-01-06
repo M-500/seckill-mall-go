@@ -50,7 +50,7 @@ func (o *OrderManagerRepository) Insert(order *models.Order) (ID int64, err erro
 	if err = o.Conn(); err != nil {
 		return
 	}
-	sqlStr := fmt.Sprintf("INSERT %s SET UserId=?,ProdId=?,OrderStatus=?", o.table)
+	sqlStr := fmt.Sprintf("INSERT `%s` SET user_id=?,prod_id=?,order_status=?", o.table)
 	stmt, err := o.mysqlConn.Prepare(sqlStr)
 	if err != nil {
 		return
