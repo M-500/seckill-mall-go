@@ -77,12 +77,14 @@ func main() {
 		panic("数据库连接失败")
 	}
 	prodRepo := repositories.NewProductRepository("product", db)
+	orderRepo := repositories.NewOrderRepository("order", db)
 	prodService := services.NewProdServiceManager(prodRepo)
+	orderService := services.NewOrderService(orderRepo)
 	prodParty := app.Party("/product")
 	prod := mvc.New(prodParty)
 	// 注册中间件
 	prodParty.Use(middlewares.AuthProduct)
-	prod.Register(ctx, prodService)
+	prod.Register(ctx, prodService, orderService, sess.Start)
 	prod.Handle(new(controllers.ProductController))
 	app.Run(
 		iris.Addr("127.0.0.1:8085"),
