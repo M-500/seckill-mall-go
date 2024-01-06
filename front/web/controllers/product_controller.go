@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/kataras/iris/v12/sessions"
@@ -24,6 +25,7 @@ func (p *ProductController) GetDetail() mvc.View {
 	if err != nil {
 		p.Ctx.Application().Logger().Error(err)
 	}
+	fmt.Println(prod)
 	return mvc.View{
 		Layout: "shared/productLayout.html",
 		Name:   "product/view.html",

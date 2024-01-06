@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"seckill-mall-go/common"
+	"seckill-mall-go/front/middlewares"
 	"seckill-mall-go/front/web/controllers"
 	"seckill-mall-go/models"
 	"seckill-mall-go/repositories"
@@ -79,6 +80,8 @@ func main() {
 	prodService := services.NewProdServiceManager(prodRepo)
 	prodParty := app.Party("/product")
 	prod := mvc.New(prodParty)
+	// 注册中间件
+	prodParty.Use(middlewares.AuthProduct)
 	prod.Register(ctx, prodService)
 	prod.Handle(new(controllers.ProductController))
 	app.Run(
